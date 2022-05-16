@@ -14,6 +14,8 @@ Query types used:
 - With new as - stacked (cte’s)
 - Avg
 - Case when
+- Group by
+- Order by
 
 <br><br>
 DATA: [Here](https://www.kaggle.com/datasets/manjeetsingh/retaildataset)
