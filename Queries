@@ -128,6 +128,62 @@ JOIN store_33 as b
 ON a.Date=b.Date
 ORDER BY a.Date ASC, b.sales DESC
 
+From this table, is there big variability based on temperature?
+
+SELECT temp_cat, AVG(sales)
+FROM `combined_33_temp`
+GROUP BY temp
+
+# temp_cat	AVG(sales)
+normal	261262.48103896104
+hot	258296.61215384607
+
+
+Not really.
+
+
+Ok- let’s just combine each of our special variables into a table that can be easily pulled from.
+
+WITH store_33 AS
+(SELECT Date, SUM(Weekly_Sales) as total
+FROM `sales`
+WHERE Store = '33'
+GROUP BY `Date`),
+features_33 AS
+(SELECT date, Temperature, Fuel_Price, CPI, Unemployment
+FROM `features`
+WHERE Store = '33')
+SELECT a.date, a.Temperature, a.Fuel_Price, a.CPI, a.Unemployment, b.total
+FROM `features_33` as a
+JOIN `store_33` as b
+ON a.date = b.Date
+
+> save table as “combined_33”
+
+
+Let’s look at unemployment:
+
+SELECT MAX(Unemployment), MIN(Unemployment)
+FROM `combined_33`
+
+# MAX(Unemployment)	MIN(Unemployment)
+10.115  	6.895
+
+WITH unemployment AS
+(SELECT date, total,
+CASE WHEN Unemployment < 7.8 THEN 'low'
+	WHEN Unemployment >= 8 AND Unemployment < 9.5 THEN 'middle'
+    ELSE 'high'
+    END AS unemployment_cat
+FROM `combined_33`)
+SELECT AVG(total) as 'avergae sales', unemployment_cat
+FROM `unemployment`
+GROUP BY unemployment_cat
+
+# avergae sales	        unemployment_cat
+290723.36428571434	high
+248347.8516455697	middle
+265943.0472093023	low
 
 
 
